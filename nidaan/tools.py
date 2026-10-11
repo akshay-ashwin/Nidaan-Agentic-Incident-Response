@@ -76,14 +76,17 @@ class UpdatePlanArgs(BaseModel):
 
 
 class RootCause(BaseModel):
-    component: Component
-    description: str
+    component: Component = Field(
+        description="The component whose own state was faulty (where the correction had to be made), "
+                    "not the component where the symptom was observed.")
+    description: str = Field(description="What was wrong, stated only as far as your observations support it.")
     evidence: list[int] = Field(description="Event numbers [N] supporting this root cause.")
 
 
 class SubmitReportArgs(BaseModel):
     status_claimed: Literal["resolved", "unresolved"]
-    root_causes: list[RootCause]
+    root_causes: list[RootCause] = Field(
+        description="One entry per distinct problem that blocked the goal, including problems already corrected.")
     actions: list[int] = Field(description="Event numbers [N] of the actions you actually performed.")
     summary: str
 
@@ -99,7 +102,9 @@ SPECS = [
     ("get_batch_status", GetBatchStatusArgs,
      "Observe sent/pending payouts, the batch checkpoint, and any payout sent more than once."),
     ("restart", RestartArgs, "Act: restart a component. May be refused."),
-    ("set_config", SetConfigArgs, "Act: set a configuration key on a component. May be rejected."),
+    ("set_config", SetConfigArgs,
+     "Act: set a configuration key on a component. May be rejected; rejecting an unknown key lists the "
+     "keys that can be set."),
     ("run_task", RunTaskArgs, "Act: run a maintenance task on a component. May have no effect."),
     ("run_settlement", RunSettlementArgs,
      "Act: run the settlement batch. May be refused or stop part-way."),

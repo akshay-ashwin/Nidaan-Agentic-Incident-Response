@@ -1,6 +1,7 @@
 """Phase 0 smoke test: 3 dependent toy-tool calls over multiple turns.
 
-Usage: python scripts/smoke_test.py [model_name]   (defaults to config.MODEL_NAME)
+Usage: python scripts/smoke_test.py [model_name]   (defaults to config.MODEL_NAME on config.PROVIDER)
+Makes live LLM calls (at most 8, no SDK retries).
 """
 import os
 import sys
@@ -11,9 +12,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage, ToolMessage
 from langchain_core.tools import tool
-from langchain_google_genai import ChatGoogleGenerativeAI
 
 import config
+from nidaan.llm import make_chat_model
 
 load_dotenv()
 
@@ -48,8 +49,7 @@ PROMPT = (
 
 
 def main(model_name: str) -> int:
-    llm = ChatGoogleGenerativeAI(model=model_name, temperature=config.TEMPERATURE,
-                                 max_retries=2).bind_tools(list(TOOLS.values()))
+    llm = make_chat_model(model=model_name).bind_tools(list(TOOLS.values()))
     messages = [HumanMessage(PROMPT)]
     calls, tool_calls_made, latencies, tokens = 0, [], [], []
     for _ in range(8):
@@ -67,7 +67,7 @@ def main(model_name: str) -> int:
             messages.append(ToolMessage(content=str(result), tool_call_id=tc["id"], name=tc["name"]))
 
     text = resp.text  # content may be a list of blocks (with thought signatures)
-    print(f"model: {model_name}")
+    print(f"model: {config.PROVIDER}:{model_name}")
     for i, (n, a, r) in enumerate(tool_calls_made, 1):
         print(f"  tool call {i}: {n}({a}) -> {r!r}")
     print(f"final answer: {text.strip()[:200]}")

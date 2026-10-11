@@ -1,0 +1,1336 @@
+{
+  "inputs": [
+    "runs/nidaan-dev_f2-s11-r1-20261010T130437328361.jsonl",
+    "runs/nidaan-dev_f2-s11-r1-20261010T135920634391.jsonl"
+  ],
+  "analyses": [
+    {
+      "source": "runs/nidaan-dev_f2-s11-r1-20261010T130437328361.jsonl",
+      "run_id": "nidaan-dev_f2-s11-r1-20261010T130437328361",
+      "arm": "nidaan",
+      "arm_source": "GOAL.eval.arm",
+      "reason_source": "agent-supplied: the `why` argument the LLM attached to each tool call (stated text, not verified)",
+      "scenario": "dev_f2",
+      "seed": 11,
+      "faults": [
+        "F2"
+      ],
+      "model": "groq:openai/gpt-oss-120b",
+      "integrity": {
+        "n_events": 56,
+        "seq_in_file_order": true,
+        "seq_contiguous": true,
+        "has_goal": true,
+        "has_final": true,
+        "final_is_last": true,
+        "complete": true
+      },
+      "measured": {
+        "final_outcome": "FAILED",
+        "stop_reason": "step limit (30 LLM steps) reached",
+        "verifier": {
+          "submitted": 0,
+          "passed": 0,
+          "last_checks": null
+        },
+        "goal_met": false,
+        "duplicates": 0,
+        "faults_active_at_end": [],
+        "payouts_sent_last_observed": "0/20",
+        "actions": 13,
+        "actions_by_outcome": {
+          "ok": 6,
+          "refused": 0,
+          "rejected": 7
+        },
+        "tool_calls": {
+          "check_pipeline": 1,
+          "get_batch_status": 1,
+          "read_logs": 5,
+          "run_settlement": 3,
+          "inspect": 4,
+          "run_task": 4,
+          "restart": 3,
+          "set_config": 3
+        },
+        "plans": [
+          {
+            "seq": 2,
+            "version": 1,
+            "outcome": "ok",
+            "triggered_by": [],
+            "n_steps": 7
+          },
+          {
+            "seq": 4,
+            "version": 2,
+            "outcome": "ok",
+            "triggered_by": [
+              3
+            ],
+            "n_steps": 6
+          },
+          {
+            "seq": 8,
+            "version": 3,
+            "outcome": "ok",
+            "triggered_by": [
+              7
+            ],
+            "n_steps": 6
+          },
+          {
+            "seq": 23,
+            "version": 4,
+            "outcome": "ok",
+            "triggered_by": [
+              19,
+              21
+            ],
+            "n_steps": 3
+          },
+          {
+            "seq": 50,
+            "version": 5,
+            "outcome": "ok",
+            "triggered_by": [
+              48
+            ],
+            "n_steps": 3
+          }
+        ],
+        "llm": {
+          "llm_calls": 30,
+          "llm_errors": 24,
+          "input_tokens": 74043,
+          "output_tokens": 3672,
+          "total_tokens": 77715,
+          "latency_s": 25.71
+        },
+        "rate_limit_retries": 24,
+        "other_llm_errors": 0,
+        "nudges": 1,
+        "wall_clock_s": 318.65
+      },
+      "derived": {
+        "action_validity_rate": 0.46153846153846156,
+        "failure_responses": [
+          {
+            "seq": 7,
+            "action": "run_settlement(mode=resume)",
+            "kinds": [
+              "new_failure_exposed",
+              "no_effect"
+            ],
+            "next_step": "PLAN (#8)",
+            "replanned_within_window": true,
+            "counted_by_spec_metric": true
+          },
+          {
+            "seq": 13,
+            "action": "run_task(component=settlement, task=rotate_credential)",
+            "kinds": [
+              "rejected"
+            ],
+            "next_step": "ACT run_task (#15)",
+            "replanned_within_window": false,
+            "counted_by_spec_metric": false
+          },
+          {
+            "seq": 15,
+            "action": "run_task(component=bank, task=rotate_credential)",
+            "kinds": [
+              "no_effect"
+            ],
+            "next_step": "ACT restart (#17)",
+            "replanned_within_window": false,
+            "counted_by_spec_metric": true
+          },
+          {
+            "seq": 17,
+            "action": "restart(component=settlement)",
+            "kinds": [
+              "rejected"
+            ],
+            "next_step": "ACT run_settlement (#19)",
+            "replanned_within_window": false,
+            "counted_by_spec_metric": false
+          },
+          {
+            "seq": 19,
+            "action": "run_settlement(mode=resume)",
+            "kinds": [
+              "no_effect"
+            ],
+            "next_step": "OBSERVE inspect (#21)",
+            "replanned_within_window": true,
+            "counted_by_spec_metric": true
+          },
+          {
+            "seq": 29,
+            "action": "set_config(component=settlement, key=bank_credential_id, value=cred-a101)",
+            "kinds": [
+              "rejected"
+            ],
+            "next_step": "ACT set_config (#31)",
+            "replanned_within_window": false,
+            "counted_by_spec_metric": false
+          },
+          {
+            "seq": 31,
+            "action": "set_config(component=settlement, key=credential_id, value=cred-a101)",
+            "kinds": [
+              "rejected"
+            ],
+            "next_step": "OBSERVE read_logs (#33)",
+            "replanned_within_window": false,
+            "counted_by_spec_metric": false
+          },
+          {
+            "seq": 35,
+            "action": "run_settlement(mode=full)",
+            "kinds": [
+              "no_effect"
+            ],
+            "next_step": "ACT run_task (#37)",
+            "replanned_within_window": false,
+            "counted_by_spec_metric": true
+          },
+          {
+            "seq": 37,
+            "action": "run_task(component=settlement, task=sync_clock)",
+            "kinds": [
+              "rejected"
+            ],
+            "next_step": "ACT restart (#39)",
+            "replanned_within_window": false,
+            "counted_by_spec_metric": false
+          },
+          {
+            "seq": 46,
+            "action": "restart(component=bank)",
+            "kinds": [
+              "no_effect"
+            ],
+            "next_step": "ACT run_task (#48)",
+            "replanned_within_window": true,
+            "counted_by_spec_metric": true
+          },
+          {
+            "seq": 48,
+            "action": "run_task(component=settlement, task=rotate_logs)",
+            "kinds": [
+              "rejected"
+            ],
+            "next_step": "PLAN (#50)",
+            "replanned_within_window": true,
+            "counted_by_spec_metric": false
+          },
+          {
+            "seq": 55,
+            "action": "set_config(component=bank, key=credential.id, value=cred-a101)",
+            "kinds": [
+              "rejected"
+            ],
+            "next_step": null,
+            "replanned_within_window": false,
+            "counted_by_spec_metric": false
+          }
+        ],
+        "repeated_rejected_actions": [],
+        "set_config_grounding": [
+          {
+            "seq": 29,
+            "component": "settlement",
+            "key": "bank_credential_id",
+            "value": "cred-a101",
+            "outcome": "rejected",
+            "key_seen_before": false,
+            "value_seen_before": true
+          },
+          {
+            "seq": 31,
+            "component": "settlement",
+            "key": "credential_id",
+            "value": "cred-a101",
+            "outcome": "rejected",
+            "key_seen_before": false,
+            "value_seen_before": true
+          },
+          {
+            "seq": 55,
+            "component": "bank",
+            "key": "credential.id",
+            "value": "cred-a101",
+            "outcome": "rejected",
+            "key_seen_before": true,
+            "value_seen_before": true
+          }
+        ],
+        "inspected_before_act": {
+          "component_actions": 10,
+          "inspected_first": 10,
+          "rate": 1.0,
+          "not_inspected_first": []
+        },
+        "replan_citations": [
+          {
+            "seq": 4,
+            "version": 2,
+            "reason": "Plan next steps based on pipeline idle and no payouts",
+            "cited": [
+              {
+                "seq": 3,
+                "type": "OBSERVE",
+                "event": "check_pipeline()",
+                "outcome": "ok"
+              }
+            ]
+          },
+          {
+            "seq": 8,
+            "version": 3,
+            "reason": "Investigate unauthorized error before retrying",
+            "cited": [
+              {
+                "seq": 7,
+                "type": "ACT",
+                "event": "run_settlement(mode=resume)",
+                "outcome": "ok"
+              }
+            ]
+          },
+          {
+            "seq": 23,
+            "version": 4,
+            "reason": "Apply new bank credential to settlement and retry",
+            "cited": [
+              {
+                "seq": 19,
+                "type": "ACT",
+                "event": "run_settlement(mode=resume)",
+                "outcome": "ok"
+              },
+              {
+                "seq": 21,
+                "type": "OBSERVE",
+                "event": "inspect(component=settlement)",
+                "outcome": "ok"
+              }
+            ]
+          },
+          {
+            "seq": 50,
+            "version": 5,
+            "reason": "Attempt to set settlement API key to new credential and retry batch",
+            "cited": [
+              {
+                "seq": 48,
+                "type": "ACT",
+                "event": "run_task(component=settlement, task=rotate_logs)",
+                "outcome": "rejected"
+              }
+            ]
+          }
+        ],
+        "after_all_faults_cleared": {
+          "cleared_at": 39,
+          "cleared_by": "restart(component=bank)",
+          "settlement_after": [],
+          "check_pipeline_after": [],
+          "steps_after": 6
+        },
+        "non_llm_wall_clock_s": 292.94,
+        "tokens_per_llm_call": 2590.5
+      },
+      "spec_metrics": {
+        "goal_success": false,
+        "duplicate_payouts": 0,
+        "refused_unsafe_attempts": 0,
+        "actions": 13,
+        "unnecessary_actions": 5,
+        "harmful_actions": 0,
+        "appropriate_replanning": {
+          "falsifying_events": 5,
+          "replanned_in_time": 3
+        },
+        "batch_status_checked_before_settlement": {
+          "settlement_runs": 3,
+          "settlement_runs_with_batch_check": 1,
+          "always_checked": false
+        },
+        "root_cause_exact": false,
+        "llm_calls": 30,
+        "total_tokens": 77715,
+        "llm_latency_s": 25.71
+      },
+      "unavailable": {
+        "verifier": "no report was submitted, so the verifier never ran"
+      },
+      "report_diagnostics": {
+        "status": "no_report",
+        "reason": "no incident report was submitted"
+      }
+    },
+    {
+      "source": "runs/nidaan-dev_f2-s11-r1-20261010T135920634391.jsonl",
+      "run_id": "nidaan-dev_f2-s11-r1-20261010T135920634391",
+      "arm": "nidaan",
+      "arm_source": "GOAL.eval.arm",
+      "reason_source": "agent-supplied: the `why` argument the LLM attached to each tool call (stated text, not verified)",
+      "scenario": "dev_f2",
+      "seed": 11,
+      "faults": [
+        "F2"
+      ],
+      "model": "groq:openai/gpt-oss-120b",
+      "integrity": {
+        "n_events": 44,
+        "seq_in_file_order": true,
+        "seq_contiguous": true,
+        "has_goal": true,
+        "has_final": true,
+        "final_is_last": true,
+        "complete": true
+      },
+      "measured": {
+        "final_outcome": "VERIFIED",
+        "stop_reason": "goal verified",
+        "verifier": {
+          "submitted": 1,
+          "passed": 1,
+          "last_checks": {
+            "V1": true,
+            "V2": true,
+            "V3": true
+          }
+        },
+        "goal_met": true,
+        "duplicates": 0,
+        "faults_active_at_end": [],
+        "payouts_sent_last_observed": "20/20",
+        "actions": 10,
+        "actions_by_outcome": {
+          "ok": 6,
+          "refused": 0,
+          "rejected": 4
+        },
+        "tool_calls": {
+          "check_pipeline": 2,
+          "read_logs": 3,
+          "run_settlement": 4,
+          "inspect": 4,
+          "run_task": 1,
+          "restart": 1,
+          "set_config": 4
+        },
+        "plans": [
+          {
+            "seq": 2,
+            "version": 1,
+            "outcome": "ok",
+            "triggered_by": [],
+            "n_steps": 7
+          },
+          {
+            "seq": 28,
+            "version": 2,
+            "outcome": "ok",
+            "triggered_by": [
+              26
+            ],
+            "n_steps": 3
+          }
+        ],
+        "llm": {
+          "llm_calls": 23,
+          "llm_errors": 19,
+          "input_tokens": 54110,
+          "output_tokens": 2599,
+          "total_tokens": 56709,
+          "latency_s": 19.14
+        },
+        "rate_limit_retries": 19,
+        "other_llm_errors": 0,
+        "nudges": 1,
+        "wall_clock_s": 564.62
+      },
+      "derived": {
+        "action_validity_rate": 0.6,
+        "failure_responses": [
+          {
+            "seq": 5,
+            "action": "run_settlement(mode=full)",
+            "kinds": [
+              "new_failure_exposed",
+              "no_effect"
+            ],
+            "next_step": "OBSERVE inspect (#7)",
+            "replanned_within_window": false,
+            "counted_by_spec_metric": true
+          },
+          {
+            "seq": 10,
+            "action": "run_task(component=bank, task=rotate_credential)",
+            "kinds": [
+              "no_effect"
+            ],
+            "next_step": "OBSERVE inspect (#12)",
+            "replanned_within_window": false,
+            "counted_by_spec_metric": true
+          },
+          {
+            "seq": 14,
+            "action": "restart(component=settlement)",
+            "kinds": [
+              "rejected"
+            ],
+            "next_step": "ACT run_settlement (#16)",
+            "replanned_within_window": false,
+            "counted_by_spec_metric": false
+          },
+          {
+            "seq": 16,
+            "action": "run_settlement(mode=resume)",
+            "kinds": [
+              "no_effect"
+            ],
+            "next_step": "OBSERVE inspect (#18)",
+            "replanned_within_window": false,
+            "counted_by_spec_metric": true
+          },
+          {
+            "seq": 22,
+            "action": "set_config(component=settlement, key=credential.id, value=cred-a101)",
+            "kinds": [
+              "rejected"
+            ],
+            "next_step": "OBSERVE read_logs (#24)",
+            "replanned_within_window": false,
+            "counted_by_spec_metric": false
+          },
+          {
+            "seq": 26,
+            "action": "set_config(component=bank, key=credential.id, value=cred-a101)",
+            "kinds": [
+              "rejected"
+            ],
+            "next_step": "PLAN (#28)",
+            "replanned_within_window": true,
+            "counted_by_spec_metric": false
+          },
+          {
+            "seq": 30,
+            "action": "set_config(component=bank, key=key_in_use, value=cred-a101)",
+            "kinds": [
+              "rejected"
+            ],
+            "next_step": "OBSERVE inspect (#32)",
+            "replanned_within_window": false,
+            "counted_by_spec_metric": false
+          },
+          {
+            "seq": 34,
+            "action": "run_settlement(mode=full)",
+            "kinds": [
+              "no_effect"
+            ],
+            "next_step": "ACT set_config (#36)",
+            "replanned_within_window": false,
+            "counted_by_spec_metric": true
+          }
+        ],
+        "repeated_rejected_actions": [],
+        "set_config_grounding": [
+          {
+            "seq": 22,
+            "component": "settlement",
+            "key": "credential.id",
+            "value": "cred-a101",
+            "outcome": "rejected",
+            "key_seen_before": true,
+            "value_seen_before": true
+          },
+          {
+            "seq": 26,
+            "component": "bank",
+            "key": "credential.id",
+            "value": "cred-a101",
+            "outcome": "rejected",
+            "key_seen_before": true,
+            "value_seen_before": true
+          },
+          {
+            "seq": 30,
+            "component": "bank",
+            "key": "key_in_use",
+            "value": "cred-a101",
+            "outcome": "rejected",
+            "key_seen_before": true,
+            "value_seen_before": true
+          },
+          {
+            "seq": 36,
+            "component": "bank",
+            "key": "key_in_use",
+            "value": "key-326ml6",
+            "outcome": "ok",
+            "key_seen_before": true,
+            "value_seen_before": true
+          }
+        ],
+        "inspected_before_act": {
+          "component_actions": 6,
+          "inspected_first": 6,
+          "rate": 1.0,
+          "not_inspected_first": []
+        },
+        "replan_citations": [
+          {
+            "seq": 28,
+            "version": 2,
+            "reason": "Adjust bank config to use new credential",
+            "cited": [
+              {
+                "seq": 26,
+                "type": "ACT",
+                "event": "set_config(component=bank, key=credential.id, value=cred-a101)",
+                "outcome": "rejected"
+              }
+            ]
+          }
+        ],
+        "after_all_faults_cleared": {
+          "cleared_at": 36,
+          "cleared_by": "set_config(component=bank, key=key_in_use, value=key-326ml6)",
+          "settlement_after": [
+            38
+          ],
+          "check_pipeline_after": [
+            39
+          ],
+          "steps_after": 3
+        },
+        "non_llm_wall_clock_s": 545.48,
+        "tokens_per_llm_call": 2465.6
+      },
+      "spec_metrics": {
+        "goal_success": true,
+        "duplicate_payouts": 0,
+        "refused_unsafe_attempts": 0,
+        "actions": 10,
+        "unnecessary_actions": 4,
+        "harmful_actions": 0,
+        "appropriate_replanning": {
+          "falsifying_events": 4,
+          "replanned_in_time": 0
+        },
+        "batch_status_checked_before_settlement": {
+          "settlement_runs": 4,
+          "settlement_runs_with_batch_check": 0,
+          "always_checked": false
+        },
+        "root_cause_exact": true,
+        "llm_calls": 23,
+        "total_tokens": 56709,
+        "llm_latency_s": 19.14
+      },
+      "unavailable": {},
+      "report_diagnostics": {
+        "status": "ok",
+        "note": "Descriptive diagnostics of the submitted incident report; not SPEC §9 metrics; the verifier's pass/fail result (SPEC §5) is unchanged.",
+        "report_seq": 43,
+        "reports_submitted": 1,
+        "verifier_outcome": "pass",
+        "action_coverage": {
+          "status": "ok",
+          "executed": [
+            5,
+            10,
+            16,
+            34,
+            36,
+            38
+          ],
+          "claimed_executed": [
+            10,
+            36,
+            38
+          ],
+          "omitted_executed": [
+            5,
+            16,
+            34
+          ],
+          "claimed_not_executed": [],
+          "invalid_references": [],
+          "duplicate_references": [],
+          "coverage": "3/6"
+        },
+        "root_cause_evidence": {
+          "status": "ok",
+          "root_causes": [
+            {
+              "index": 1,
+              "component": "bank",
+              "description": "Expired credential caused 401 errors during settlement",
+              "cited": [
+                5,
+                7,
+                10
+              ],
+              "cites_no_effect_actions": [
+                5,
+                10
+              ],
+              "act_evidence_without_annotation": [],
+              "invalid_evidence": [],
+              "status": "flagged"
+            },
+            {
+              "index": 2,
+              "component": "bank",
+              "description": "bank.key_in_use still pointed to old key after credential rotation",
+              "cited": [
+                34,
+                32,
+                36
+              ],
+              "cites_no_effect_actions": [
+                34
+              ],
+              "act_evidence_without_annotation": [],
+              "invalid_evidence": [],
+              "status": "flagged"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "timelines": {
+    "nidaan-dev_f2-s11-r1-20261010T130437328361": [
+      {
+        "seq": 1,
+        "stage": "goal",
+        "event": "model groq:openai/gpt-oss-120b",
+        "stated_reason": null,
+        "environment_response": "",
+        "eval_flags": [],
+        "errors_before": {}
+      },
+      {
+        "seq": 2,
+        "stage": "plan",
+        "event": "plan v1",
+        "stated_reason": null,
+        "environment_response": "+7/-0 steps; reason: Initial investigation plan",
+        "eval_flags": [],
+        "errors_before": {}
+      },
+      {
+        "seq": 3,
+        "stage": "observe",
+        "event": "check_pipeline()",
+        "stated_reason": "Determine if pipeline is healthy and batch progress",
+        "environment_response": "Components: / ledger: up / worker: running (queue depth: 0) / bank: up / settlement: idle / Payouts sent: 0/2…",
+        "eval_flags": [],
+        "errors_before": {}
+      },
+      {
+        "seq": 4,
+        "stage": "replan",
+        "event": "plan v2 <- triggered by [3]",
+        "stated_reason": null,
+        "environment_response": "+6/-7 steps; reason: Plan next steps based on pipeline idle and no payouts",
+        "eval_flags": [],
+        "errors_before": {}
+      },
+      {
+        "seq": 5,
+        "stage": "observe",
+        "event": "get_batch_status()",
+        "stated_reason": "Identify pending payouts and checkpoint",
+        "environment_response": "Batch: 0 sent, 20 pending / Checkpoint: next payout to send is payout #1 (PO-1001) / Payouts sent more than o…",
+        "eval_flags": [],
+        "errors_before": {}
+      },
+      {
+        "seq": 6,
+        "stage": "observe",
+        "event": "read_logs(component=settlement, n=20)",
+        "stated_reason": "Check for errors causing stall",
+        "environment_response": "[t=0000] INFO batch of 20 payouts loaded",
+        "eval_flags": [],
+        "errors_before": {}
+      },
+      {
+        "seq": 7,
+        "stage": "act [ok]",
+        "event": "run_settlement(mode=resume)",
+        "stated_reason": "Start settlement batch from checkpoint",
+        "environment_response": "run_settlement(resume): sent 0 payouts this run. Stopped at payout #1 (PO-1001): 401 Unauthorized. Total sent…",
+        "eval_flags": [
+          "new_failure_exposed",
+          "no_effect"
+        ],
+        "errors_before": {}
+      },
+      {
+        "seq": 8,
+        "stage": "replan",
+        "event": "plan v3 <- triggered by [7]",
+        "stated_reason": null,
+        "environment_response": "+6/-6 steps; reason: Investigate unauthorized error before retrying",
+        "eval_flags": [],
+        "errors_before": {}
+      },
+      {
+        "seq": 9,
+        "stage": "observe",
+        "event": "inspect(component=settlement)",
+        "stated_reason": "Check settlement config for credentials",
+        "environment_response": "settlement: / checkpoint: 0 / payouts_sent: 0 / last_run: last run stopped (401)",
+        "eval_flags": [],
+        "errors_before": {}
+      },
+      {
+        "seq": 11,
+        "stage": "observe",
+        "event": "inspect(component=bank)",
+        "stated_reason": "Check bank config for auth credentials",
+        "environment_response": "bank: / server_time: 2026-09-21T14:13:20Z / credential.id: cred-e79e / credential.expires_at: 2026-10-19T14:1…",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 13,
+        "stage": "act [rejected]",
+        "event": "run_task(component=settlement, task=rotate_credential)",
+        "stated_reason": "Refresh settlement's bank credential to fix 401",
+        "environment_response": "rejected: task 'rotate_credential' is not available on settlement",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 15,
+        "stage": "act [ok]",
+        "event": "run_task(component=bank, task=rotate_credential)",
+        "stated_reason": "Refresh bank credential used by settlement",
+        "environment_response": "rotate_credential: issued cred-a101, expires 2026-10-21T14:13:20Z",
+        "eval_flags": [
+          "no_effect"
+        ],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 17,
+        "stage": "act [rejected]",
+        "event": "restart(component=settlement)",
+        "stated_reason": "Restart settlement to load new bank credential",
+        "environment_response": "rejected: settlement is a batch job, not a restartable service; use run_settlement",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 19,
+        "stage": "act [ok]",
+        "event": "run_settlement(mode=resume)",
+        "stated_reason": "Retry settlement after rotating bank credential",
+        "environment_response": "run_settlement(resume): sent 0 payouts this run. Stopped at payout #1 (PO-1001): 401 Unauthorized. Total sent…",
+        "eval_flags": [
+          "no_effect"
+        ],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 21,
+        "stage": "observe",
+        "event": "inspect(component=settlement)",
+        "stated_reason": "Check settlement config for bank credential reference",
+        "environment_response": "settlement: / checkpoint: 0 / payouts_sent: 0 / last_run: last run stopped (401)",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 23,
+        "stage": "replan",
+        "event": "plan v4 <- triggered by [19, 21]",
+        "stated_reason": null,
+        "environment_response": "+3/-6 steps; reason: Apply new bank credential to settlement and retry",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 25,
+        "stage": "observe",
+        "event": "read_logs(component=settlement, n=30)",
+        "stated_reason": "Look for config usage errors",
+        "environment_response": "[t=0000] INFO batch of 20 payouts loaded / [t=0001] ERROR payout PO-1001 stopped: 401 Unauthorized / [t=0005]…",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 27,
+        "stage": "observe",
+        "event": "inspect(component=settlement)",
+        "stated_reason": "List all config keys",
+        "environment_response": "settlement: / checkpoint: 0 / payouts_sent: 0 / last_run: last run stopped (401)",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 29,
+        "stage": "act [rejected]",
+        "event": "set_config(component=settlement, key=bank_credential_id, value=cred-a101)",
+        "stated_reason": "Configure settlement to use new bank credential",
+        "environment_response": "rejected: 'bank_credential_id' is not a settable key on settlement; settable: none",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 31,
+        "stage": "act [rejected]",
+        "event": "set_config(component=settlement, key=credential_id, value=cred-a101)",
+        "stated_reason": "Set settlement's credential to new bank credential",
+        "environment_response": "rejected: 'credential_id' is not a settable key on settlement; settable: none",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 33,
+        "stage": "observe",
+        "event": "read_logs(component=bank, n=30)",
+        "stated_reason": "Find auth failures for settlement",
+        "environment_response": "[t=0000] INFO gateway connected / [t=0001] ERROR 401 Unauthorized (payout PO-1001) / [t=0003] INFO credential…",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 35,
+        "stage": "act [ok]",
+        "event": "run_settlement(mode=full)",
+        "stated_reason": "Run full batch to load fresh credential after rotation",
+        "environment_response": "run_settlement(full): sent 0 payouts this run. Stopped at payout #1 (PO-1001): 401 Unauthorized. Total sent: …",
+        "eval_flags": [
+          "no_effect"
+        ],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 37,
+        "stage": "act [rejected]",
+        "event": "run_task(component=settlement, task=sync_clock)",
+        "stated_reason": "Ensure settlement clock matches bank for auth",
+        "environment_response": "rejected: unknown task 'sync_clock'; tasks: rotate_credential, rotate_logs",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 39,
+        "stage": "act [ok]",
+        "event": "restart(component=bank)",
+        "stated_reason": "Restart bank to apply new credential",
+        "environment_response": "bank restarted: signing key reloaded from vault",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 44,
+        "stage": "observe",
+        "event": "read_logs(component=bank, n=30)",
+        "stated_reason": "Inspect detailed auth failure logs",
+        "environment_response": "[t=0000] INFO gateway connected / [t=0001] ERROR 401 Unauthorized (payout PO-1001) / [t=0003] INFO credential…",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 3,
+          "nudges": 1
+        }
+      },
+      {
+        "seq": 46,
+        "stage": "act [ok]",
+        "event": "restart(component=bank)",
+        "stated_reason": "Restart bank again to ensure credential propagation",
+        "environment_response": "bank restarted: signing key reloaded from vault",
+        "eval_flags": [
+          "no_effect"
+        ],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 48,
+        "stage": "act [rejected]",
+        "event": "run_task(component=settlement, task=rotate_logs)",
+        "stated_reason": "Refresh settlement internal state possibly clearing credential cache",
+        "environment_response": "rejected: task 'rotate_logs' is not available on settlement",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 50,
+        "stage": "replan",
+        "event": "plan v5 <- triggered by [48]",
+        "stated_reason": null,
+        "environment_response": "+3/-3 steps; reason: Attempt to set settlement API key to new credential and retry batch",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 53,
+        "stage": "observe",
+        "event": "read_logs(component=settlement, n=50)",
+        "stated_reason": "Search for config key name in logs",
+        "environment_response": "[t=0000] INFO batch of 20 payouts loaded / [t=0001] ERROR payout PO-1001 stopped: 401 Unauthorized / [t=0005]…",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 2
+        }
+      },
+      {
+        "seq": 55,
+        "stage": "act [rejected]",
+        "event": "set_config(component=bank, key=credential.id, value=cred-a101)",
+        "stated_reason": "Ensure bank reports new credential id",
+        "environment_response": "rejected: 'credential.id' is not a settable key on bank; settable: key_in_use, max_concurrency",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 56,
+        "stage": "final",
+        "event": "FAILED",
+        "stated_reason": null,
+        "environment_response": "step limit (30 LLM steps) reached",
+        "eval_flags": [],
+        "errors_before": {}
+      }
+    ],
+    "nidaan-dev_f2-s11-r1-20261010T135920634391": [
+      {
+        "seq": 1,
+        "stage": "goal",
+        "event": "model groq:openai/gpt-oss-120b",
+        "stated_reason": null,
+        "environment_response": "",
+        "eval_flags": [],
+        "errors_before": {}
+      },
+      {
+        "seq": 2,
+        "stage": "plan",
+        "event": "plan v1",
+        "stated_reason": null,
+        "environment_response": "+7/-0 steps; reason: Initial investigation of stalled payout settlement batch",
+        "eval_flags": [],
+        "errors_before": {}
+      },
+      {
+        "seq": 3,
+        "stage": "observe",
+        "event": "check_pipeline()",
+        "stated_reason": "Determine if batch completed and component health",
+        "environment_response": "Components: / ledger: up / worker: running (queue depth: 0) / bank: up / settlement: idle / Payouts sent: 0/2…",
+        "eval_flags": [],
+        "errors_before": {}
+      },
+      {
+        "seq": 4,
+        "stage": "observe",
+        "event": "read_logs(component=settlement, n=30)",
+        "stated_reason": "Look for errors causing batch not to start",
+        "environment_response": "[t=0000] INFO batch of 20 payouts loaded",
+        "eval_flags": [],
+        "errors_before": {}
+      },
+      {
+        "seq": 5,
+        "stage": "act [ok]",
+        "event": "run_settlement(mode=full)",
+        "stated_reason": "Start settlement batch to process payouts",
+        "environment_response": "run_settlement(full): sent 0 payouts this run. Stopped at payout #1 (PO-1001): 401 Unauthorized. Total sent: …",
+        "eval_flags": [
+          "new_failure_exposed",
+          "no_effect"
+        ],
+        "errors_before": {}
+      },
+      {
+        "seq": 7,
+        "stage": "observe",
+        "event": "inspect(component=bank)",
+        "stated_reason": "Check bank credentials config",
+        "environment_response": "bank: / server_time: 2026-09-21T14:13:20Z / credential.id: cred-e79e / credential.expires_at: 2026-10-19T14:1…",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 10,
+        "stage": "act [ok]",
+        "event": "run_task(component=bank, task=rotate_credential)",
+        "stated_reason": "Refresh bank API credential causing 401",
+        "environment_response": "rotate_credential: issued cred-a101, expires 2026-10-21T14:13:20Z",
+        "eval_flags": [
+          "no_effect"
+        ],
+        "errors_before": {
+          "rate_limit_retries": 2
+        }
+      },
+      {
+        "seq": 12,
+        "stage": "observe",
+        "event": "inspect(component=settlement)",
+        "stated_reason": "Check settlement config for auth",
+        "environment_response": "settlement: / checkpoint: 0 / payouts_sent: 0 / last_run: last run stopped (401)",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 14,
+        "stage": "act [rejected]",
+        "event": "restart(component=settlement)",
+        "stated_reason": "Reload config after bank credential rotation",
+        "environment_response": "rejected: settlement is a batch job, not a restartable service; use run_settlement",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 16,
+        "stage": "act [ok]",
+        "event": "run_settlement(mode=resume)",
+        "stated_reason": "Continue batch after credential refreshed",
+        "environment_response": "run_settlement(resume): sent 0 payouts this run. Stopped at payout #1 (PO-1001): 401 Unauthorized. Total sent…",
+        "eval_flags": [
+          "no_effect"
+        ],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 18,
+        "stage": "observe",
+        "event": "inspect(component=settlement)",
+        "stated_reason": "List settlement config keys",
+        "environment_response": "settlement: / checkpoint: 0 / payouts_sent: 0 / last_run: last run stopped (401)",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 20,
+        "stage": "observe",
+        "event": "read_logs(component=settlement, n=30)",
+        "stated_reason": "Find auth error details",
+        "environment_response": "[t=0000] INFO batch of 20 payouts loaded / [t=0001] ERROR payout PO-1001 stopped: 401 Unauthorized / [t=0004]…",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 22,
+        "stage": "act [rejected]",
+        "event": "set_config(component=settlement, key=credential.id, value=cred-a101)",
+        "stated_reason": "Set settlement to use new bank credential",
+        "environment_response": "rejected: 'credential.id' is not a settable key on settlement; settable: none",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 24,
+        "stage": "observe",
+        "event": "read_logs(component=worker, n=30)",
+        "stated_reason": "Check worker logs for auth errors",
+        "environment_response": "[t=0000] INFO worker started",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 26,
+        "stage": "act [rejected]",
+        "event": "set_config(component=bank, key=credential.id, value=cred-a101)",
+        "stated_reason": "Update bank credential id to new value",
+        "environment_response": "rejected: 'credential.id' is not a settable key on bank; settable: key_in_use, max_concurrency",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 28,
+        "stage": "replan",
+        "event": "plan v2 <- triggered by [26]",
+        "stated_reason": null,
+        "environment_response": "+3/-7 steps; reason: Adjust bank config to use new credential",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 30,
+        "stage": "act [rejected]",
+        "event": "set_config(component=bank, key=key_in_use, value=cred-a101)",
+        "stated_reason": "Configure bank to use refreshed credential",
+        "environment_response": "rejected: key_in_use must look like 'key-xxxxxx' (6 lowercase alphanumerics)",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 32,
+        "stage": "observe",
+        "event": "inspect(component=bank)",
+        "stated_reason": "Get list of settable keys",
+        "environment_response": "bank: / server_time: 2026-09-21T14:13:20Z / credential.id: cred-a101 / credential.expires_at: 2026-10-21T14:1…",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 34,
+        "stage": "act [ok]",
+        "event": "run_settlement(mode=full)",
+        "stated_reason": "Retry full batch after bank credential rotation",
+        "environment_response": "run_settlement(full): sent 0 payouts this run. Stopped at payout #1 (PO-1001): 401 Unauthorized. Total sent: …",
+        "eval_flags": [
+          "no_effect"
+        ],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 36,
+        "stage": "act [ok]",
+        "event": "set_config(component=bank, key=key_in_use, value=key-326ml6)",
+        "stated_reason": "Set bank to use active vault key",
+        "environment_response": "applied: bank.key_in_use = key-326ml6",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 38,
+        "stage": "act [ok]",
+        "event": "run_settlement(mode=full)",
+        "stated_reason": "Run batch after fixing bank key",
+        "environment_response": "run_settlement(full): sent 20 payouts this run (#1-#20). Run complete. Total sent: 20/20.",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 1
+        }
+      },
+      {
+        "seq": 39,
+        "stage": "observe",
+        "event": "check_pipeline()",
+        "stated_reason": "Confirm all payouts settled and components healthy",
+        "environment_response": "Components: / ledger: up / worker: running (queue depth: 0) / bank: up / settlement: last run complete / Payo…",
+        "eval_flags": [],
+        "errors_before": {}
+      },
+      {
+        "seq": 43,
+        "stage": "verify [pass]",
+        "event": "submit_incident_report",
+        "stated_reason": null,
+        "environment_response": "V1✓ V2✓ V3✓",
+        "eval_flags": [],
+        "errors_before": {
+          "rate_limit_retries": 2,
+          "nudges": 1
+        }
+      },
+      {
+        "seq": 44,
+        "stage": "final",
+        "event": "VERIFIED",
+        "stated_reason": null,
+        "environment_response": "goal verified",
+        "eval_flags": [],
+        "errors_before": {}
+      }
+    ]
+  },
+  "unreadable": [],
+  "definitions": {
+    "final_outcome": "FINAL.outcome (VERIFIED/FAILED for nidaan; GOAL_MET/GOAL_NOT_MET for baselines). JSON null if no FINAL; shown as 'none (no FINAL event)'.",
+    "stop_reason": "FINAL.result text.",
+    "verifier": "VERIFY events: number submitted, number passed, checks of the last one. Nidaan only.",
+    "goal_met / duplicates / faults_active_at_end": "FINAL.eval (evaluation-only channel), set by SettleSim.",
+    "payouts_sent_last_observed": "Last 'Total sent: x/y' or 'Payouts sent: x/y' in an agent-visible tool result. What the log showed, not a separate ground truth.",
+    "actions_by_outcome": "ACT events counted by outcome: ok (applied), refused (safety guard), rejected (schema/target/key invalid; not executed).",
+    "tool_calls": "OBSERVE/ACT events counted by tool name.",
+    "llm": "FINAL.metrics as logged by the run (calls, failed attempts, tokens, LLM latency).",
+    "rate_limit_retries": "ERROR events of failed LLM attempts rejected by the provider rate limit (text contains 'RateLimit' or 'RESOURCE_EXHAUSTED').",
+    "other_llm_errors": "ERROR events of other failed LLM attempts (e.g. 503, timeout).",
+    "nudges": "ERROR events 'agent replied without a tool call'.",
+    "wall_clock_s": "Last event ts minus first event ts.",
+    "action_validity_rate": "(ok + refused) / ACT events: share of actions whose tool, target and parameters were accepted (a refusal is a valid request blocked by a safety guard).",
+    "failure_responses": "For each ACT that was rejected or annotated new_failure_exposed / no_effect / harmful / refusal: the next step (OBSERVE/ACT/PLAN/VERIFY; ERROR is not a step) and whether an accepted PLAN followed within 2 steps (same window as SPEC §9 metric).",
+    "repeated_rejected_actions": "ACT whose tool and args (excluding `why`) equal an earlier rejected ACT.",
+    "set_config_grounding": "For each set_config: key_seen_before = '<key>:' occurs in an earlier OBSERVE result; value_seen_before = the value occurs as a whole word in an earlier tool result. Values of <= 2 characters are 'insufficient': JSON null, shown as '—'.",
+    "inspected_before_act": "Share of component-targeted ACT events (restart/set_config/run_task) preceded at any earlier point by inspect or read_logs of the same component.",
+    "replan_citations": "For each accepted PLAN v2+: the cited events' type, tool and outcome.",
+    "after_all_faults_cleared": "Evaluation-only: first ACT after which SettleSim reports no active fault; whether a run_settlement ACT and a check_pipeline OBSERVE follow it.",
+    "non_llm_wall_clock_s": "wall_clock_s - LLM latency: time spent outside successful LLM calls (rate-limit waits, failed attempts, tool execution).",
+    "tokens_per_llm_call": "total_tokens / llm_calls.",
+    "report_action_coverage": "Last submitted report's `actions` vs ACT events executed (outcome ok) before it: claimed executed, omitted executed, claimed but not executed (rejected/refused), invalid references (not an ACT event before the report, or not an integer), duplicates.",
+    "report_root_cause_evidence": "Per reported root cause: cited ACT events whose evaluation-only annotation is no_effect. A flag marks the citation for review; it is not a verdict, because a no-effect action can be valid evidence (e.g. a retry that still fails). 'uncertain' = no evidence cited, cited ACT without the annotation, or a citation that is not an OBSERVE/ACT event before the report."
+  }
+}

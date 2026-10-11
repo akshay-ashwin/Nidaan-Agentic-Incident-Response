@@ -10,11 +10,11 @@ import time
 from typing import Annotated, TypedDict
 
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage, ToolMessage
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.graph import END, StateGraph
 from langgraph.graph.message import add_messages
 
 import config
+from nidaan.llm import make_chat_model
 from nidaan.logger import RunLogger
 from nidaan.prompt import GOAL, NUDGE, SYSTEM_PROMPT
 from nidaan.tools import ToolExecutor, build_langchain_tools
@@ -31,6 +31,25 @@ def is_transient(msg: str) -> bool:
 
 
 RETRY_DELAY_RE = re.compile(r"retryDelay['\"]?\s*:\s*['\"]?([\d.]+)s|retry in ([\d.]+)s")
+# Groq: "Please try again in 7.5s" / "450ms" / "1m2.5s" / "2h3m4s"
+GROQ_DELAY_RE = re.compile(r"try again in (?:(\d+)h)?(?:(\d+)m(?!s))?(?:([\d.]+)(ms|s))?")
+ORG_ID_RE = re.compile(r"org_[A-Za-z0-9]+")
+
+
+def redact(msg: str) -> str:
+    """Remove account identifiers that provider error messages may contain."""
+    return ORG_ID_RE.sub("org_<redacted>", msg)
+
+
+def _server_delay_s(msg: str) -> float | None:
+    m = RETRY_DELAY_RE.search(msg)
+    if m:
+        return float(m.group(1) or m.group(2))
+    m = GROQ_DELAY_RE.search(msg)
+    if m and any(m.groups()):
+        h, mins, num, unit = m.groups()
+        return int(h or 0) * 3600 + int(mins or 0) * 60 + float(num or 0) / (1000 if unit == "ms" else 1)
+    return None
 
 
 def retry_delay_s(msg: str, attempt: int) -> float | None:
@@ -39,9 +58,9 @@ def retry_delay_s(msg: str, attempt: int) -> float | None:
     A server delay longer than LLM_MAX_RETRY_DELAY_S (e.g. a daily quota) is not waited out."""
     if not is_transient(msg):
         return None
-    m = RETRY_DELAY_RE.search(msg)
-    if m:
-        delay = float(m.group(1) or m.group(2)) + 1
+    server = _server_delay_s(msg)
+    if server is not None:
+        delay = server + 1
         return delay if delay <= config.LLM_MAX_RETRY_DELAY_S else None
     return config.LLM_BACKOFF_BASE_S * 2 ** attempt
 
@@ -55,10 +74,8 @@ class State(TypedDict):
     reason: str | None
 
 
-def make_llm() -> ChatGoogleGenerativeAI:
-    return ChatGoogleGenerativeAI(model=config.MODEL_NAME, temperature=config.TEMPERATURE,
-                                  thinking_level=config.THINKING_LEVEL, max_retries=0,
-                                  timeout=config.LLM_TIMEOUT_S).bind_tools(build_langchain_tools())
+def make_llm():
+    return make_chat_model().bind_tools(build_langchain_tools())
 
 
 class NidaanAgent:
@@ -100,10 +117,10 @@ class NidaanAgent:
                 resp = self.llm.invoke(messages)
                 return resp, time.perf_counter() - t0, None
             except Exception as e:  # noqa: BLE001 - classify by message, never log secrets
-                msg = f"{type(e).__name__}: {str(e)[:1500]}"
+                msg = redact(f"{type(e).__name__}: {str(e)[:1500]}")
                 self.metrics["llm_errors"] += 1
                 self.logger.log("ERROR", error=f"LLM call failed (attempt {attempt + 1}): {msg}",
-                                model=config.MODEL_NAME)
+                                model=config.MODEL_ID)
                 delay = retry_delay_s(msg, attempt)
                 if attempt == config.LLM_RETRIES or delay is None:
                     return None, 0.0, msg
@@ -129,7 +146,7 @@ class NidaanAgent:
         self._meta = {"llm_call": m["llm_calls"], "latency_ms": round(latency * 1000),
                       "tokens": (dict(input=usage.get("input_tokens"), output=usage.get("output_tokens"),
                                       total=usage.get("total_tokens")) if usage else "unavailable"),
-                      "model": config.MODEL_NAME}
+                      "model": config.MODEL_ID}
         out = {"messages": [resp], "llm_steps": s["llm_steps"] + 1}
         if not resp.tool_calls:
             if s["nudges"] >= config.MAX_NUDGES:
@@ -182,7 +199,7 @@ class NidaanAgent:
 
     # ---- run -----------------------------------------------------------
     def run(self) -> dict:
-        self.logger.log("GOAL", goal=GOAL, model=config.MODEL_NAME, eval=self.scenario_info or None)
+        self.logger.log("GOAL", goal=GOAL, model=config.MODEL_ID, eval=self.scenario_info or None)
         init: State = {"messages": [SystemMessage(SYSTEM_PROMPT), HumanMessage(GOAL)], "llm_steps": 0,
                        "nudges": 0, "retries": 0, "status": None, "reason": None}
         final = self.graph.invoke(init, {"recursion_limit": 200})

@@ -12,7 +12,8 @@ import time
 
 import config
 from baselines.common import LoggedTools, finish_run, start_run
-from nidaan.graph import retry_delay_s
+from nidaan.graph import redact, retry_delay_s
+from nidaan.llm import make_chat_model
 from nidaan.logger import RunLogger
 from nidaan.tools import RUN_TASKS
 from settlesim.sim import COMPONENTS, SettleSim
@@ -75,10 +76,7 @@ def execute_actions(t: LoggedTools, actions: list) -> int:
 
 
 def make_llm():
-    from langchain_google_genai import ChatGoogleGenerativeAI
-    return ChatGoogleGenerativeAI(model=config.MODEL_NAME, temperature=config.TEMPERATURE,
-                                  thinking_level=config.THINKING_LEVEL, max_retries=0,
-                                  timeout=config.LLM_TIMEOUT_S)
+    return make_chat_model()  # same configured provider and model as Nidaan
 
 
 def _invoke(llm, messages):
@@ -88,7 +86,7 @@ def _invoke(llm, messages):
         try:
             return llm.invoke(messages), time.perf_counter() - t0, 1 + attempt, None
         except Exception as e:  # noqa: BLE001
-            err = f"{type(e).__name__}: {str(e)[:500]}"
+            err = redact(f"{type(e).__name__}: {str(e)[:500]}")
             delay = retry_delay_s(err, attempt)
             if attempt == config.LLM_RETRIES or delay is None:
                 break
@@ -97,16 +95,16 @@ def _invoke(llm, messages):
 
 
 def run_oneshot(sim: SettleSim, logger: RunLogger, scenario_info: dict, llm=None) -> dict:
-    """Requires a live LLM call (Gemini) unless an `llm` is supplied."""
+    """Requires a live LLM call (configured provider) unless an `llm` is supplied."""
     t = LoggedTools(sim, logger)
-    start_run(logger, "oneshot", scenario_info, config.MODEL_NAME)
+    start_run(logger, "oneshot", scenario_info, config.MODEL_ID)
     snapshot = build_snapshot(t)
     llm = llm or make_llm()
     resp, latency, attempts, err = _invoke(llm, [("system", SYSTEM_PROMPT), ("human", snapshot)])
     m = {"llm_calls": 0, "llm_errors": attempts - (1 if resp else 0), "input_tokens": "unavailable",
          "output_tokens": "unavailable", "total_tokens": "unavailable", "latency_s": round(latency, 2)}
     if resp is None:
-        logger.log("ERROR", error=f"LLM call failed: {err}", model=config.MODEL_NAME)
+        logger.log("ERROR", error=f"LLM call failed: {err}", model=config.MODEL_ID)
         finish_run(logger, sim, m, f"LLM error: {err}")
         return {"reason": "llm error"}
     m["llm_calls"] = 1

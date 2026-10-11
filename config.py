@@ -1,8 +1,16 @@
 """Single source of model configuration."""
-MODEL_NAME = "gemini-3.8-flash"  # confirmed by real call in Phase 0; see PROGRESS.md
+# Provider switch. The API key is read from .env by the provider's own integration
+# (GROQ_API_KEY for groq, GOOGLE_API_KEY for gemini); it is never passed or logged here.
+PROVIDER = "groq"
+MODELS = {
+    "groq": "openai/gpt-oss-120b",  # production model with tool use on Groq; see PROGRESS.md
+    "gemini": "gemini-3.8-flash",   # Phases 0-2; confirmed by real call in Phase 0
+}
+MODEL_NAME = MODELS[PROVIDER]
+MODEL_ID = f"{PROVIDER}:{MODEL_NAME}"  # provider-qualified name written to the run logs
 TEMPERATURE = 0
-# SPEC §4 asks for minimal thinking. gemini-3.8-flash rejects "minimal" (400); "low" is the
-# lowest level it accepts (0 reasoning tokens observed on a trivial prompt).
+# SPEC §4 asks for minimal thinking. Gemini: gemini-3.8-flash rejects "minimal" (400); "low" is the
+# lowest level it accepts. Groq: sent as reasoning_effort; gpt-oss accepts low/medium/high only.
 THINKING_LEVEL = "low"
 
 # SPEC §1 run limits

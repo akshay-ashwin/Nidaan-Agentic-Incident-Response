@@ -22,6 +22,8 @@ class RunLogger:
         os.makedirs(runs_dir, exist_ok=True)
         self.path = os.path.join(runs_dir, f"{run_id}.jsonl")
         self._f = open(self.path, "w", encoding="utf-8")
+        from nidaan.provenance import collect_base  # local import: provenance hashes prompts that import this module
+        self._provenance = collect_base()  # once per run; attached to the initial GOAL event (run metadata, additive)
 
     def log(self, type: str, **fields) -> dict:
         if type not in EVENT_TYPES:
@@ -30,6 +32,10 @@ class RunLogger:
               "ts": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
               "run_id": self.run_id, "type": type}
         ev.update({k: v for k, v in fields.items() if v is not None})
+        if type == "GOAL" and self._provenance is not None and "provenance" not in ev:
+            from nidaan.provenance import model_fields
+            ev["provenance"] = {**self._provenance, **model_fields(fields.get("model"))}
+            self._provenance = None  # initial GOAL only
         self.events.append(ev)
         self._f.write(json.dumps(ev, ensure_ascii=False) + "\n")
         self._f.flush()
