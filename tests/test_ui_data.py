@@ -174,3 +174,65 @@ def test_headline_and_run_label():
     rec = {"arm": "nidaan", "scenario": "hero", "run_id": "rid", "api_failure": True,
            "metrics": {"supplementary": {"final_outcome": "FAILED"}}}
     assert D.run_label(rec) == "nidaan | hero | FAILED [API/quota failure] | rid"
+
+
+def test_live_dashboard_runs_never_enter_recorded_aggregates(runs):
+    import shutil
+    from ui import live
+    d = pathlib.Path(runs)
+    run = live.start_live_run("runbook", "hero", runs_dir=d / "live_tmp")
+    assert run.wait(30)
+    shutil.copy(run.log_path, d / pathlib.Path(run.log_path).name)  # even if copied into runs/
+    recs = D.build_records(runs)
+    kept, counts = D.prepare(recs)
+    assert counts["live_runs_hidden"] == 1
+    assert not any(D.is_live_record(r) for r in kept)
+    assert len(kept) == 3 and counts["non_development_hidden"] == 2  # recorded semantics unchanged
+    assert D.summarize_records(kept)["by_arm"]["runbook"]["n_runs"] == 1
+
+
+@pytest.mark.parametrize("arm,verifies,final_eval,api_error,expected", [
+    ("nidaan", ["pass"], {"goal_met": True}, False, "VERIFIED"),
+    ("nidaan", ["pass"], {"goal_met": False}, False, "FAILED"),   # a pass the simulator contradicts
+    ("nidaan", ["fail"], {"goal_met": True}, False, "FAILED"),
+    ("nidaan", ["pass", "fail"], {"goal_met": True}, False, "FAILED"),  # the last attempt counts
+    ("nidaan", [], {"goal_met": True}, False, "FAILED"),          # no verifier pass, no success claim
+    ("nidaan", [], {"goal_met": False}, True, "ERROR"),
+    ("nidaan", ["pass"], None, False, "INCOMPLETE"),              # no FINAL event
+    ("runbook", [], {"goal_met": True}, False, "GOAL_MET"),
+    ("oneshot", [], {"goal_met": False}, False, "GOAL_NOT_MET"),
+])
+def test_recorded_verdict_requires_independent_evidence(arm, verifies, final_eval, api_error, expected):
+    events = [goal(["F1"], "hero", arm)]
+    for i, o in enumerate(verifies):
+        events.append(ev(2 + i, "VERIFY", outcome=o, args={"status_claimed": "resolved"}))
+    if final_eval is not None:
+        events.append(ev(9, "FINAL", outcome="VERIFIED", eval=final_eval,
+                         result="LLM error: 429" if api_error else "done"))
+    assert D.recorded_verdict(arm, events) == expected
+
+
+def test_no_recorded_run_is_labelled_verified_without_evidence():
+    recs = D.build_records(str(ROOT / "runs"))
+    for r in recs:
+        events = D.read_jsonl(r["log_path"])
+        if D.recorded_verdict(r["arm"], events) == "VERIFIED":
+            last = [e for e in events if e["type"] == "VERIFY"][-1]
+            final = [e for e in events if e["type"] == "FINAL"][-1]
+            assert last["outcome"] == "pass" and final["eval"]["goal_met"] is True
+
+
+def test_recorded_verification_keeps_claim_verifier_and_ground_truth_separate():
+    events = [goal(["F1"], "hero", "nidaan"),
+              ev(2, "VERIFY", outcome="pass", checks={"V1": True, "V2": True, "V3": True}, result="verification PASSED",
+                 args={"status_claimed": "resolved", "root_causes": [{"component": "settlement"}]}),
+              ev(3, "FINAL", outcome="VERIFIED", result="goal verified",
+                 eval={"goal_met": True, "duplicates": 0, "faults_active": []})]
+    rec = {"arm": "nidaan", "metrics": {"spec": {"root_cause_exact": False}}}
+    v = D.recorded_verification(rec, events)
+    assert v["verdict"] == "VERIFIED"
+    assert v["agent_claim"]["root_causes"] == [{"component": "settlement"}]
+    assert v["verify_history"] == [{"seq": 2, "outcome": "pass", "checks": {"V1": True, "V2": True, "V3": True},
+                                    "message": "verification PASSED"}]
+    assert v["ground_truth"] == {"goal_met": True, "duplicates": 0, "faults_active": []}
+    assert v["root_cause_exact"] is False  # evaluation-only; a verified run can still name the wrong component

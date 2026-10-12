@@ -15,7 +15,8 @@ An LLM agent for autonomous incident response, evaluated in a controlled, simula
 | `nidaan/` | LangGraph agent: graph, system prompt, tools/executor, plan validation, verifier, JSONL logger |
 | `baselines/` | Classical rule-based runbook; one-shot LLM planner |
 | `evaluation/`, `scripts/` | Metrics, Wilson intervals, evaluation driver, offline trace analyser |
-| `ui/` | Read-only Streamlit dashboard over recorded runs (never calls a model) |
+| `ui/` | Streamlit dashboard: recorded evidence (read-only) plus explicitly started live runs (see below) |
+| `runs_live/` | Logs of live dashboard runs (gitignored; never part of the evaluation) |
 | `tests/` | Offline tests (no LLM calls) |
 | `results/`, `reports/` | Measured results and trace-analysis reports (2026-10-10) |
 | `runs/` | JSONL agent interaction logs (gitignored; see the checklist for the evidence logs) |
@@ -35,6 +36,12 @@ cp .env.example .env   # add GROQ_API_KEY only for live agent runs; never commit
 .venv/bin/python scripts/analyse_traces.py --log runs/hero-s323-20261010T122852.jsonl --print-timeline
 .venv/bin/streamlit run ui/app.py
 ```
+
+Opening the dashboard, refreshing it or switching sections starts no run and calls no model. In *Investigate &
+Run*, **Run Runbook** starts a live runbook run (no model calls); **Run Nidaan** starts a live agent run, which
+**uses API quota** and is enabled only after ticking a confirmation box (and only if `.env` holds a key). One live
+run at a time; it cannot be stopped once started. Live runs are logged to `runs_live/` and never appear in the
+recorded evaluation views.
 
 ## Live agent run (uses API quota)
 

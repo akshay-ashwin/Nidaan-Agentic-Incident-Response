@@ -21,7 +21,8 @@ from settlesim.generator import DEV_FAULTS
 # ---- field classification (SPEC §6 channels) ----
 AGENT_VISIBLE_FIELDS = ("goal", "tool", "args", "why", "result", "outcome", "plan_version", "steps",
                         "reason", "triggered_by", "diff", "checks", "retries_left")
-RUN_META_FIELDS = ("ts", "llm_call", "latency_ms", "tokens", "model", "metrics", "error")
+RUN_META_FIELDS = ("ts", "llm_call", "latency_ms", "tokens", "model", "metrics", "error", "error_kind", "attempt",
+                   "retry_in_s")
 
 EVENT_COLORS = {"PLAN": "#4f46e5", "REPLAN": "#d97706", "OBSERVE": "#6b7280", "ACT": "#0d9488",
                 "VERIFY": "#16a34a", "FINAL": "#1f2937", "ERROR": "#dc2626", "GOAL": "#0ea5e9"}
@@ -67,13 +68,21 @@ def is_infra_failure(r: dict) -> bool:
     return bool(r.get("api_failure") or r.get("incomplete"))
 
 
+def is_live_record(r: dict) -> bool:
+    """An interactive dashboard run (ui/live.py writes run ids 'live-...'); never recorded evaluation evidence."""
+    return str(r.get("run_id", "")).startswith("live-")
+
+
 def prepare(records: list[dict], exclude_infra: bool = False) -> tuple[list[dict], dict]:
-    """Filter to development runs (always) and optionally drop infrastructure failures.
-    Returns (records, counts). Nothing is dropped silently: counts report every exclusion."""
-    dev = [r for r in records if is_dev_record(r)]
+    """Filter to development runs (always), drop live dashboard runs (always) and optionally drop
+    infrastructure failures. Returns (records, counts). Nothing is dropped silently: counts report every exclusion."""
+    live = [r for r in records if is_live_record(r)]
+    recorded = [r for r in records if not is_live_record(r)]
+    dev = [r for r in recorded if is_dev_record(r)]
     infra = [r for r in dev if is_infra_failure(r)]
     kept = [r for r in dev if not (exclude_infra and is_infra_failure(r))]
-    return kept, {"total_logs": len(records), "non_development_hidden": len(records) - len(dev),
+    return kept, {"total_logs": len(records), "live_runs_hidden": len(live),
+                  "non_development_hidden": len(recorded) - len(dev),
                   "infrastructure_failures_in_view": len([r for r in kept if is_infra_failure(r)]),
                   "infrastructure_failures_total": len(infra),
                   "excluded_by_toggle": len(dev) - len(kept)}
@@ -252,4 +261,41 @@ def evidence_summary(events: list[dict]) -> dict:
         "final": ({"outcome": final.get("outcome"), "reason": final.get("result"),
                    "state_eval_only": final.get("eval"), "llm_metrics": final.get("metrics")}
                   if final else None),
+    }
+
+
+# ---- recorded-run verification (display only; mirrors ui.live.verdict) ----
+def recorded_verdict(arm: str, events: list[dict]) -> str:
+    """Headline outcome of a recorded run. Never claims success without independent evidence.
+    INCOMPLETE: no FINAL event. ERROR: ended on an API/quota error (infrastructure, not an agent decision).
+    nidaan: VERIFIED only if the last verifier attempt passed AND the simulator goal check (FINAL eval) holds.
+    other arms: GOAL_MET / GOAL_NOT_MET from the simulator goal check (they submit no report)."""
+    final = next((e for e in reversed(events) if e["type"] == "FINAL"), None)
+    if final is None:
+        return "INCOMPLETE"
+    if is_api_failure(events):
+        return "ERROR"
+    goal = bool((final.get("eval") or {}).get("goal_met"))
+    if arm == "nidaan":
+        verifies = [e for e in events if e["type"] == "VERIFY"]
+        return "VERIFIED" if (verifies and verifies[-1].get("outcome") == "pass" and goal) else "FAILED"
+    return "GOAL_MET" if goal else "GOAL_NOT_MET"
+
+
+def recorded_verification(record: dict, events: list[dict]) -> dict:
+    """Agent claim, verifier attempts and simulator ground truth of a recorded run, kept separate.
+    Only what the log contains: recorded FINAL events hold goal_met / duplicates / faults_active, not G1-G3."""
+    verifies = [e for e in events if e["type"] == "VERIFY"]
+    final = next((e for e in reversed(events) if e["type"] == "FINAL"), None)
+    fin_eval = (final or {}).get("eval")
+    return {
+        "verdict": recorded_verdict(record["arm"], events),
+        "agent_claim": verifies[-1].get("args") if verifies else None,
+        "verify_history": [{"seq": e["seq"], "outcome": e.get("outcome"), "checks": e.get("checks"),
+                            "message": e.get("result")} for e in verifies],
+        "ground_truth": ({"goal_met": fin_eval.get("goal_met"), "duplicates": fin_eval.get("duplicates"),
+                          "faults_active": fin_eval.get("faults_active")} if fin_eval else None),
+        "final_outcome": (final or {}).get("outcome"),
+        "final_reason": (final or {}).get("result"),
+        "root_cause_exact": record["metrics"]["spec"].get("root_cause_exact"),
     }

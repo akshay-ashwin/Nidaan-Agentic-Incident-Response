@@ -22,6 +22,15 @@ LLM_TIMEOUT_S = 60  # per request; a timeout is treated as transient and retried
 
 LLM_MAX_RETRY_DELAY_S = 120  # server-requested delays longer than this are not waited out
 
-# Transient-error retry with exponential backoff (seconds: 2, 4, 8, 16)
-LLM_RETRIES = 4
-LLM_BACKOFF_BASE_S = 2
+# Retry policy (nidaan/llm_errors.py). The application loop is the only retry layer (SDK retries are disabled).
+LLM_RETRIES = 4              # transient errors (5xx, timeout): retries per call
+LLM_RATE_LIMIT_RETRIES = 8   # per-minute rate limits (HTTP 429): retries per call
+LLM_BACKOFF_BASE_S = 2       # exponential backoff with jitter when the provider gives no retry time
+LLM_BACKOFF_MAX_S = 30
+LLM_RETRY_MARGIN_S = 1       # added to the provider's suggested wait
+LLM_MAX_TOTAL_RETRY_WAIT_S = 300  # total waiting per call; past this the run stops (no infinite loop)
+
+# Proactive pacing under the provider's tokens-per-minute limit (None disables). Groq on_demand tier for
+# openai/gpt-oss-120b reported "Limit 8000" tokens per minute in its 429 responses (see PROGRESS.md).
+LLM_TPM_LIMITS = {"groq": 8000, "gemini": None}
+LLM_TPM_LIMIT = LLM_TPM_LIMITS.get(PROVIDER)

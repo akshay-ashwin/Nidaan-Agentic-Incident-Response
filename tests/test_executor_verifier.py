@@ -159,7 +159,11 @@ def test_retry_delay_respects_server_delay():
 
 def test_retry_delay_fallback_cap_and_nonretryable():
     from nidaan.graph import retry_delay_s
-    assert [retry_delay_s("503 UNAVAILABLE", a) for a in range(4)] == [2, 4, 8, 16]
+    # Exponential backoff with jitter: retry a waits within [50%, 100%] of 2, 4, 8, 16 s (capped at 30 s).
+    for a, cap in enumerate([2, 4, 8, 16]):
+        d = retry_delay_s("503 UNAVAILABLE", a)
+        assert cap / 2 <= d <= cap
+    assert retry_delay_s("503 UNAVAILABLE", 4) is None  # transient retries exhausted (LLM_RETRIES = 4)
     assert retry_delay_s("429 RESOURCE_EXHAUSTED 'retryDelay': '500s'", 0) is None  # beyond cap
     assert retry_delay_s("429 ... PerDay ... 'retryDelay': '10s'", 0) is None  # daily quota
     assert retry_delay_s("400 INVALID_ARGUMENT", 0) is None
